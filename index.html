@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pocket Cash Pro - Auto Traffic Version</title>
+    <title>Earning Task Bd- Auto Traffic Version</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
@@ -26,14 +26,13 @@
         .ref-box { background: #0f172a; padding: 20px; border-radius: 15px; margin-top: 10px; border: 1px dashed #1abc9c; }
         .ref-link-area { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 12px; color: #fbbf24; word-break: break-all; margin: 15px 0; border: 1px solid #334155; }
         
-        /* সফল মেসেজের জন্য নতুন স্টাইল */
         .success-status { color: #1abc9c; font-weight: bold; text-align: center; padding: 10px; background: rgba(26, 188, 156, 0.1); border-radius: 10px; margin-top: 10px; border: 1px solid #1abc9c; }
     </style>
 </head>
 <body>
 
     <div class="notice-box">
-        📢 <div class="notice-text">বন্ধুদের রেফার করে আনলিমিটেড বোনাস পান! সঠিক প্রুফ জমা দিলে ১ ঘণ্টার মধ্যে পেমেন্ট পাবেন ইনশাআল্লাহ।</div>
+        📢 <div class="notice-text">বন্ধুদের রেফার করে আনলিমিটেড বোনাস পান! সঠিক প্রুফ জমা দিলে ১ ঘণ্টার মধ্যে পেমেন্ট পাবেন ইনশাআল্লাহ। সবসময় টেলিগ্রামের লিংক ব্যবহার করে প্রবেশ করুন।</div>
     </div>
 
     <div class="header-card">
@@ -132,8 +131,19 @@
         firebase.initializeApp(config);
         const db = firebase.database();
         
-        let id = localStorage.getItem('uniqueId') || Math.floor(10000 + Math.random() * 90000);
-        localStorage.setItem('uniqueId', id);
+        // --- আইডি ট্র্যাকিং সিস্টেম (ব্রাউজার পরিবর্তন করলে ডাটা হারাবে না) ---
+        const urlParams = new URLSearchParams(window.location.search);
+        let idFromUrl = urlParams.get('id');
+        let id = idFromUrl || localStorage.getItem('uniqueId');
+
+        if (id) {
+            localStorage.setItem('uniqueId', id);
+        } else {
+            // যদি লিংক ছাড়া সরাসরি ঢুকে পড়ে, তবেই নতুন আইডি জেনারেট হবে
+            id = Math.floor(10000 + Math.random() * 90000);
+            localStorage.setItem('uniqueId', id);
+        }
+        // -----------------------------------------------------------------
 
         function sync() {
             db.ref('users/' + id).on('value', (s) => {
@@ -150,7 +160,6 @@
                     const fullLink = "https://t.me/earningtask25_bot?start=" + id;
                     document.getElementById('refLinkDisplay').innerText = fullLink;
                     
-                    // টাস্ক স্ট্যাটাস চেক
                     checkTaskStatus(1);
                     checkTaskStatus(2);
                 } else {
@@ -159,7 +168,6 @@
             });
         }
 
-        // টাস্ক করা আছে কি না চেক করার ফাংশন
         function checkTaskStatus(n) {
             const lastTaskTime = localStorage.getItem('lastTask_' + n);
             const currentTime = new Date().getTime();
@@ -198,20 +206,30 @@
                 return alert("আপনি ইতিমধ্যে এই টাস্কটি করেছেন।");
             }
 
-            const scriptURL = "https://script.google.com/macros/s/AKfycbxFSZtcjLUWOuH57vsTdiHz6h5fF1daY1Co0lz3t8VfnyH1O4kS3xtHE2fffq64LNUt/exec"; 
-            const adminMsg = `📸 নতুন প্রুফ জমা!\n🆔 ইউজার আইডি: ${id}\n📝 টাস্ক নম্বর: ${n}\n📌 অবস্থা: পেন্ডিং`;
+            // আপনার নতুন স্ক্রিপ্ট লিংক বসানো হয়েছে
+            const scriptURL = "https://script.google.com/macros/s/AKfycbxuJG3vMojxj4YpNOdZtY-rG1OoNgkuksA1jiXFlk3WNlCSOhECPFO3tmZrJ0gN2FAyjw/exec"; 
 
-            fetch(scriptURL, {
-                method: 'POST',
-                mode: 'no-cors',
-                body: JSON.stringify({ "adminNotify": true, "msg": adminMsg })
-            });
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64String = e.target.result.split(',')[1];
+                const adminMsg = `📸 নতুন প্রুফ জমা!\n🆔 ইউজার আইডি: ${id}\n📝 টাস্ক নম্বর: ${n}\n📌 অবস্থা: পেন্ডিং`;
 
-            db.ref('users/' + id + '/pending').set(firebase.database.ServerValue.increment(1));
-            localStorage.setItem('lastTask_' + n, currentTime);
+                fetch(scriptURL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ 
+                        "imagePayload": base64String,
+                        "msg": adminMsg 
+                    })
+                });
 
-            alert("প্রুফ জমা হয়েছে! এডমিন চেক করে ব্যালেন্স দিয়ে দিবে।");
-            checkTaskStatus(n); // সাথে সাথে ইউআই আপডেট
+                db.ref('users/' + id + '/pending').set(firebase.database.ServerValue.increment(1));
+                localStorage.setItem('lastTask_' + n, currentTime);
+
+                alert("প্রুফ জমা হয়েছে! এডমিন চেক করে ব্যালেন্স দিয়ে দিবে।");
+                checkTaskStatus(n); 
+            };
+            reader.readAsDataURL(fileInput.files[0]);
         }
 
         function withdraw() {
