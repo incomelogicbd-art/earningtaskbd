@@ -23,9 +23,11 @@
         .btn:active { transform: scale(0.95); opacity: 0.8; }
         .task-box { background: #2d3748; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; border: 1px solid #3e4e63; }
         
-        /* নতুন রেফারাল বক্স ডিজাইন */
         .ref-box { background: #0f172a; padding: 20px; border-radius: 15px; margin-top: 10px; border: 1px dashed #1abc9c; }
         .ref-link-area { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 12px; color: #fbbf24; word-break: break-all; margin: 15px 0; border: 1px solid #334155; }
+        
+        /* সফল মেসেজের জন্য নতুন স্টাইল */
+        .success-status { color: #1abc9c; font-weight: bold; text-align: center; padding: 10px; background: rgba(26, 188, 156, 0.1); border-radius: 10px; margin-top: 10px; border: 1px solid #1abc9c; }
     </style>
 </head>
 <body>
@@ -50,17 +52,23 @@
     <div id="taskSection" class="content-section">
         <div class="card">
             <h3 style="color:#1abc9c; margin-top:0;">টাস্ক বোর্ড 🔥</h3>
-            <div class="task-box">
+            
+            <div class="task-box" id="taskBox1">
                 <span style="color:#1abc9c; font-weight:bold;">টাস্ক ১: ১০০ পয়েন্ট</span>
                 <button class="btn" style="background:white; color:black;" onclick="window.open('https://otieu.com/4/10227255', '_blank')">অ্যাপ ডাউনলোড ও সাইন আপ করুন</button>
-                <input type="file" id="proof1">
-                <button class="btn" onclick="uploadScreenshot(1)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+                <div id="uiArea1">
+                    <input type="file" id="proof1">
+                    <button class="btn" onclick="uploadScreenshot(1)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+                </div>
             </div>
-            <div class="task-box">
+
+            <div class="task-box" id="taskBox2">
                 <span style="color:#1abc9c; font-weight:bold;">টাস্ক ২: ১০০ পয়েন্ট</span>
                 <button class="btn" style="background:white; color:black;" onclick="window.open('https://doublyracism.com/tsvz355k?key=2692264f20de9b26342de2d291a88efd', '_blank')">অ্যাপ ডাউনলোড ও সাইন আপ করুন</button>
-                <input type="file" id="proof2">
-                <button class="btn" onclick="uploadScreenshot(2)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+                <div id="uiArea2">
+                    <input type="file" id="proof2">
+                    <button class="btn" onclick="uploadScreenshot(2)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+                </div>
             </div>
         </div>
     </div>
@@ -76,7 +84,6 @@
                 <button class="btn" onclick="copyRefLink()">লিংক কপি করুন 📋</button>
                 <button class="btn" style="background:#2d3748; margin-top:10px;" onclick="openBot()">সরাসরি বটে যান 🤖</button>
             </div>
-            <p style="font-size:11px; color:#94a3b8; margin-top:15px;">*লিংকটি শেয়ার করুন, কেউ জয়েন করলেই পয়েন্ট আপনার অ্যাকাউন্টে যোগ হবে।</p>
         </div>
     </div>
 
@@ -140,13 +147,25 @@
                     document.getElementById('topUserId').innerText = id;
                     document.getElementById('pId').innerText = id;
                     
-                    // রেফার লিংক আপডেট
                     const fullLink = "https://t.me/earningtask25_bot?start=" + id;
                     document.getElementById('refLinkDisplay').innerText = fullLink;
+                    
+                    // টাস্ক স্ট্যাটাস চেক
+                    checkTaskStatus(1);
+                    checkTaskStatus(2);
                 } else {
                     db.ref('users/' + id).set({ balance: 0, pending: 0, success: 0, reject: 0, id: id });
                 }
             });
+        }
+
+        // টাস্ক করা আছে কি না চেক করার ফাংশন
+        function checkTaskStatus(n) {
+            const lastTaskTime = localStorage.getItem('lastTask_' + n);
+            const currentTime = new Date().getTime();
+            if (lastTaskTime && (currentTime - lastTaskTime < 24 * 60 * 60 * 1000)) {
+                document.getElementById('uiArea' + n).innerHTML = `<div class="success-status">✅ টাস্ক সফলভাবে সম্পন্ন! ২৪ ঘণ্টা পর আবার করতে পারবেন।</div>`;
+            }
         }
 
         function showTab(t) {
@@ -156,23 +175,43 @@
             document.getElementById(t + 'Tab').classList.add('active');
         }
 
-        // লিংক কপি করার ফাংশন
         function copyRefLink() {
             const linkText = document.getElementById('refLinkDisplay').innerText;
             navigator.clipboard.writeText(linkText).then(() => {
-                alert("রেফারেল লিংক কপি হয়েছে! এখন সোশ্যাল মিডিয়ায় শেয়ার করুন।");
+                alert("রেফারেল লিংক কপি হয়েছে!");
             });
         }
 
         function openBot() {
-            const botUsername = "earningtask25_bot"; 
-            window.open("https://t.me/" + botUsername + "?start=" + id, "_blank");
+            window.open("https://t.me/earningtask25_bot?start=" + id, "_blank");
         }
 
         function uploadScreenshot(n) {
-            if(!document.getElementById('proof'+n).files[0]) return alert("ছবি সিলেক্ট করুন!");
+            const fileInput = document.getElementById('proof' + n);
+            if (!fileInput.files[0]) return alert("ছবি সিলেক্ট করুন!");
+
+            const lastTaskTime = localStorage.getItem('lastTask_' + n);
+            const currentTime = new Date().getTime();
+            const lockTime = 24 * 60 * 60 * 1000;
+
+            if (lastTaskTime && (currentTime - lastTaskTime < lockTime)) {
+                return alert("আপনি ইতিমধ্যে এই টাস্কটি করেছেন।");
+            }
+
+            const scriptURL = "https://script.google.com/macros/s/AKfycbz90g4SRlwL2qvYrdr5HPIglnkCB1TQlCjDe8VGAH9ZUtUEX54dm5x69SF1CSuc95wOcg/exec"; 
+            const adminMsg = `📸 নতুন প্রুফ জমা!\n🆔 ইউজার আইডি: ${id}\n📝 টাস্ক নম্বর: ${n}\n📌 অবস্থা: পেন্ডিং`;
+
+            fetch(scriptURL, {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify({ "adminNotify": true, "msg": adminMsg })
+            });
+
             db.ref('users/' + id + '/pending').set(firebase.database.ServerValue.increment(1));
-            alert("প্রুফ জমা হয়েছে!");
+            localStorage.setItem('lastTask_' + n, currentTime);
+
+            alert("প্রুফ জমা হয়েছে! এডমিন চেক করে ব্যালেন্স দিয়ে দিবে।");
+            checkTaskStatus(n); // সাথে সাথে ইউআই আপডেট
         }
 
         function withdraw() {
@@ -189,4 +228,5 @@
         sync();
     </script>
 </body>
-</html>
+    </html>
+    
