@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pocket Cash Pro - Auto Traffic Version</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    
+    <style>
+        body { font-family: 'Arial', sans-serif; background-color: #0f172a; color: white; text-align: center; margin: 0; padding: 15px; }
+        .notice-box { background: #1e293b; color: #fbbf24; padding: 10px; border-radius: 12px; margin-bottom: 15px; border-left: 5px solid #fbbf24; font-size: 14px; overflow: hidden; position: relative; }
+        .notice-text { white-space: nowrap; animation: marquee 15s linear infinite; display: inline-block; }
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+        .header-card { background: linear-gradient(135deg, #1abc9c, #16a085); padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .nav-bar { display: flex; justify-content: space-around; background: #1e293b; padding: 10px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #334155; }
+        .nav-item { color: #94a3b8; cursor: pointer; font-size: 13px; font-weight: bold; padding: 5px; }
+        .nav-item.active { color: #1abc9c; border-bottom: 2px solid #1abc9c; }
+        .card { background: #1e293b; padding: 20px; border-radius: 20px; min-height: 450px; }
+        input, select { width: 100%; padding: 12px; border-radius: 10px; border: none; margin: 8px 0; background: #0f172a; color: white; }
+        .btn { background: #1abc9c; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 5px; transition: 0.3s; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        .task-box { background: #2d3748; padding: 15px; border-radius: 15px; margin-bottom: 15px; text-align: left; border: 1px solid #3e4e63; }
+        
+        /* নতুন রেফারাল বক্স ডিজাইন */
+        .ref-box { background: #0f172a; padding: 20px; border-radius: 15px; margin-top: 10px; border: 1px dashed #1abc9c; }
+        .ref-link-area { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 12px; color: #fbbf24; word-break: break-all; margin: 15px 0; border: 1px solid #334155; }
+    </style>
+</head>
+<body>
+
+    <div class="notice-box">
+        📢 <div class="notice-text">বন্ধুদের রেফার করে আনলিমিটেড বোনাস পান! সঠিক প্রুফ জমা দিলে ১ ঘণ্টার মধ্যে পেমেন্ট পাবেন ইনশাআল্লাহ।</div>
+    </div>
+
+    <div class="header-card">
+        <p style="margin:0; font-size: 14px;">আপনার মোট ব্যালেন্স</p>
+        <h1 id="topBalance" style="margin: 5px 0;">0 Pts</h1>
+        <div style="background: rgba(0,0,0,0.2); padding: 4px 12px; border-radius: 50px; font-size: 12px; display: inline-block;">🆔 ID: <span id="topUserId">...</span></div>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" id="taskTab" onclick="showTab('task')">টাস্ক</div>
+        <div class="nav-item" id="refTab" onclick="showTab('ref')">রেফার</div>
+        <div class="nav-item" id="withdrawTab" onclick="showTab('withdraw')">উইথড্র</div>
+        <div class="nav-item" id="profileTab" onclick="showTab('profile')">প্রোফাইল</div>
+    </div>
+
+    <div id="taskSection" class="content-section">
+        <div class="card">
+            <h3 style="color:#1abc9c; margin-top:0;">টাস্ক বোর্ড 🔥</h3>
+            <div class="task-box">
+                <span style="color:#1abc9c; font-weight:bold;">টাস্ক ১: ১০০ পয়েন্ট</span>
+                <button class="btn" style="background:white; color:black;" onclick="window.open('https://otieu.com/4/10227255', '_blank')">অ্যাপ ডাউনলোড ও সাইন আপ করুন</button>
+                <input type="file" id="proof1">
+                <button class="btn" onclick="uploadScreenshot(1)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+            </div>
+            <div class="task-box">
+                <span style="color:#1abc9c; font-weight:bold;">টাস্ক ২: ১০০ পয়েন্ট</span>
+                <button class="btn" style="background:white; color:black;" onclick="window.open('https://doublyracism.com/tsvz355k?key=2692264f20de9b26342de2d291a88efd', '_blank')">অ্যাপ ডাউনলোড ও সাইন আপ করুন</button>
+                <input type="file" id="proof2">
+                <button class="btn" onclick="uploadScreenshot(2)">সাইন আপ করার প্রুফ জমা দিন ✅</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="refSection" class="content-section" style="display:none;">
+        <div class="card">
+            <h3 style="color:#1abc9c;">রেফার করে ৫০ পয়েন্ট ইনকাম করুন 👥</h3>
+            <p style="font-size:14px; color:#94a3b8;">আপনার রেফারেল লিংকটি কপি করে সোশ্যাল মিডিয়ায় শেয়ার করুন।</p>
+            <div class="ref-box">
+                <p style="margin:0; font-size:12px; color:#1abc9c;">আপনার পার্সোনাল রেফারাল লিংক</p>
+                <div class="ref-link-area" id="refLinkDisplay">https://t.me/earningtask25_bot?start=loading...</div>
+                
+                <button class="btn" onclick="copyRefLink()">লিংক কপি করুন 📋</button>
+                <button class="btn" style="background:#2d3748; margin-top:10px;" onclick="openBot()">সরাসরি বটে যান 🤖</button>
+            </div>
+            <p style="font-size:11px; color:#94a3b8; margin-top:15px;">*লিংকটি শেয়ার করুন, কেউ জয়েন করলেই পয়েন্ট আপনার অ্যাকাউন্টে যোগ হবে।</p>
+        </div>
+    </div>
+
+    <div id="withdrawSection" class="content-section" style="display:none;">
+        <div class="card">
+            <h3>মিনিমাম উত্তোলন ১০০০ পয়েন্ট 💸</h3>
+            <select id="method">
+                <option value="বিকাশ">বিকাশ (Bkash)</option>
+                <option value="নগদ">নগদ (Nagad)</option>
+                <option value="মোবাইল রিচার্জ">মোবাইল রিচার্জ</option>
+            </select>
+            <input type="number" id="num" placeholder="মোবাইল নম্বর">
+            <input type="number" id="amt" placeholder="পয়েন্টের পরিমাণ">
+            <button class="btn" onclick="withdraw()">রিকোয়েস্ট পাঠান</button>
+        </div>
+    </div>
+
+    <div id="profileSection" class="content-section" style="display:none;">
+        <div class="card">
+            <h3>প্রোফাইল</h3>
+            <div style="text-align:left; background:#0f172a; padding:15px; border-radius:15px; font-size:14px;">
+                <p>🆔 আইডি: <span id="pId">...</span></p>
+                <p>💰 ব্যালেন্স: <span id="pBal">0 Pts</span></p>
+                <hr style="border:0.1px solid #1e293b">
+                <p>⏳ পেন্ডিং কাজ: <span id="pPen">0</span></p>
+                <p>✅ সফল কাজ: <span id="pSuc">0</span></p>
+                <p>❌ রিজেক্ট কাজ: <span id="pRej" style="color:#e74c3c;">0</span></p>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:15px;">
+                <a href="https://t.me/incomelogicbd2" class="btn" style="text-decoration:none; font-size:12px; background:#2d3748;">👨‍💻 এডমিন</a>
+                <a href="https://t.me/IncomeLogicBD" class="btn" style="text-decoration:none; font-size:12px; background:#2d3748;">📢 চ্যানেল</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const config = {
+            apiKey: "AIzaSyDlZQtxsHyepL1muNbKJRBPrFtP2o1QYEc",
+            authDomain: "build-realtime-database.firebaseapp.com",
+            databaseURL: "https://build-realtime-database-default-rtdb.firebaseio.com",
+            projectId: "build-realtime-database",
+            storageBucket: "build-realtime-database.firebasestorage.app",
+            messagingSenderId: "638237537474",
+            appId: "1:638237537474:web:80c7f76775128ad268b75b"
+        };
+        firebase.initializeApp(config);
+        const db = firebase.database();
+        
+        let id = localStorage.getItem('uniqueId') || Math.floor(10000 + Math.random() * 90000);
+        localStorage.setItem('uniqueId', id);
+
+        function sync() {
+            db.ref('users/' + id).on('value', (s) => {
+                const d = s.val();
+                if (d) {
+                    document.getElementById('topBalance').innerText = (d.balance || 0) + " Pts";
+                    document.getElementById('pBal').innerText = (d.balance || 0) + " Pts";
+                    document.getElementById('pPen').innerText = d.pending || 0;
+                    document.getElementById('pSuc').innerText = d.success || 0;
+                    document.getElementById('pRej').innerText = d.reject || 0;
+                    document.getElementById('topUserId').innerText = id;
+                    document.getElementById('pId').innerText = id;
+                    
+                    // রেফার লিংক আপডেট
+                    const fullLink = "https://t.me/earningtask25_bot?start=" + id;
+                    document.getElementById('refLinkDisplay').innerText = fullLink;
+                } else {
+                    db.ref('users/' + id).set({ balance: 0, pending: 0, success: 0, reject: 0, id: id });
+                }
+            });
+        }
+
+        function showTab(t) {
+            document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(t + 'Section').style.display = 'block';
+            document.getElementById(t + 'Tab').classList.add('active');
+        }
+
+        // লিংক কপি করার ফাংশন
+        function copyRefLink() {
+            const linkText = document.getElementById('refLinkDisplay').innerText;
+            navigator.clipboard.writeText(linkText).then(() => {
+                alert("রেফারেল লিংক কপি হয়েছে! এখন সোশ্যাল মিডিয়ায় শেয়ার করুন।");
+            });
+        }
+
+        function openBot() {
+            const botUsername = "earningtask25_bot"; 
+            window.open("https://t.me/" + botUsername + "?start=" + id, "_blank");
+        }
+
+        function uploadScreenshot(n) {
+            if(!document.getElementById('proof'+n).files[0]) return alert("ছবি সিলেক্ট করুন!");
+            db.ref('users/' + id + '/pending').set(firebase.database.ServerValue.increment(1));
+            alert("প্রুফ জমা হয়েছে!");
+        }
+
+        function withdraw() {
+            const amt = parseInt(document.getElementById('amt').value);
+            if(!amt || amt <= 0) return alert("সঠিক পয়েন্ট দিন!");
+            db.ref('users/' + id + '/balance').once('value').then(s => {
+                if(s.val() >= amt){
+                    db.ref('users/' + id + '/balance').set(s.val() - amt);
+                    alert("রিকোয়েস্ট সফল!");
+                } else alert("ব্যালেন্স নেই!");
+            });
+        }
+
+        sync();
+    </script>
+</body>
+</html>
