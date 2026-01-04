@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earning Task Bd- Auto Traffic Version</title>
+    <title>Pocket Cash Pro - Auto Traffic Version</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     
@@ -79,24 +79,21 @@
             <div class="ref-box">
                 <p style="margin:0; font-size:12px; color:#1abc9c;">আপনার পার্সোনাল রেফারাল লিংক</p>
                 <div class="ref-link-area" id="refLinkDisplay">https://t.me/earningtask25_bot?start=loading...</div>
-                
                 <button class="btn" onclick="copyRefLink()">লিংক কপি করুন 📋</button>
-                <button class="btn" style="background:#2d3748; margin-top:10px;" onclick="openBot()">সরাসরি বটে যান 🤖</button>
             </div>
         </div>
     </div>
 
     <div id="withdrawSection" class="content-section" style="display:none;">
         <div class="card">
-            <h3>মিনিমাম উত্তোলন ১০০০ পয়েন্ট 💸</h3>
+            <h3>টাকা উত্তোলন 💸</h3>
             <select id="method">
                 <option value="বিকাশ">বিকাশ (Bkash)</option>
                 <option value="নগদ">নগদ (Nagad)</option>
-                <option value="মোবাইল রিচার্জ">মোবাইল রিচার্জ</option>
             </select>
             <input type="number" id="num" placeholder="মোবাইল নম্বর">
             <input type="number" id="amt" placeholder="পয়েন্টের পরিমাণ">
-            <button class="btn" onclick="withdraw()">রিকোয়েস্ট পাঠান</button>
+            <button class="btn" onclick="withdraw()">উইথড্র রিকোয়েস্ট পাঠান</button>
         </div>
     </div>
 
@@ -106,14 +103,7 @@
             <div style="text-align:left; background:#0f172a; padding:15px; border-radius:15px; font-size:14px;">
                 <p>🆔 আইডি: <span id="pId">...</span></p>
                 <p>💰 ব্যালেন্স: <span id="pBal">0 Pts</span></p>
-                <hr style="border:0.1px solid #1e293b">
                 <p>⏳ পেন্ডিং কাজ: <span id="pPen">0</span></p>
-                <p>✅ সফল কাজ: <span id="pSuc">0</span></p>
-                <p>❌ রিজেক্ট কাজ: <span id="pRej" style="color:#e74c3c;">0</span></p>
-            </div>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:15px;">
-                <a href="https://t.me/incomelogicbd2" class="btn" style="text-decoration:none; font-size:12px; background:#2d3748;">👨‍💻 এডমিন</a>
-                <a href="https://t.me/IncomeLogicBD" class="btn" style="text-decoration:none; font-size:12px; background:#2d3748;">📢 চ্যানেল</a>
             </div>
         </div>
     </div>
@@ -131,7 +121,7 @@
         firebase.initializeApp(config);
         const db = firebase.database();
         
-        // --- আইডি ট্র্যাকিং সিস্টেম (ব্রাউজার পরিবর্তন করলে ডাটা হারাবে না) ---
+        // আইডি ট্র্যাকিং
         const urlParams = new URLSearchParams(window.location.search);
         let idFromUrl = urlParams.get('id');
         let id = idFromUrl || localStorage.getItem('uniqueId');
@@ -139,11 +129,9 @@
         if (id) {
             localStorage.setItem('uniqueId', id);
         } else {
-            // যদি লিংক ছাড়া সরাসরি ঢুকে পড়ে, তবেই নতুন আইডি জেনারেট হবে
             id = Math.floor(10000 + Math.random() * 90000);
             localStorage.setItem('uniqueId', id);
         }
-        // -----------------------------------------------------------------
 
         function sync() {
             db.ref('users/' + id).on('value', (s) => {
@@ -152,28 +140,13 @@
                     document.getElementById('topBalance').innerText = (d.balance || 0) + " Pts";
                     document.getElementById('pBal').innerText = (d.balance || 0) + " Pts";
                     document.getElementById('pPen').innerText = d.pending || 0;
-                    document.getElementById('pSuc').innerText = d.success || 0;
-                    document.getElementById('pRej').innerText = d.reject || 0;
                     document.getElementById('topUserId').innerText = id;
                     document.getElementById('pId').innerText = id;
-                    
-                    const fullLink = "https://t.me/earningtask25_bot?start=" + id;
-                    document.getElementById('refLinkDisplay').innerText = fullLink;
-                    
-                    checkTaskStatus(1);
-                    checkTaskStatus(2);
+                    document.getElementById('refLinkDisplay').innerText = "https://t.me/earningtask25_bot?start=" + id;
                 } else {
-                    db.ref('users/' + id).set({ balance: 0, pending: 0, success: 0, reject: 0, id: id });
+                    db.ref('users/' + id).set({ balance: 0, pending: 0, id: id });
                 }
             });
-        }
-
-        function checkTaskStatus(n) {
-            const lastTaskTime = localStorage.getItem('lastTask_' + n);
-            const currentTime = new Date().getTime();
-            if (lastTaskTime && (currentTime - lastTaskTime < 24 * 60 * 60 * 1000)) {
-                document.getElementById('uiArea' + n).innerHTML = `<div class="success-status">✅ টাস্ক সফলভাবে সম্পন্ন! ২৪ ঘণ্টা পর আবার করতে পারবেন।</div>`;
-            }
         }
 
         function showTab(t) {
@@ -183,51 +156,31 @@
             document.getElementById(t + 'Tab').classList.add('active');
         }
 
-        function copyRefLink() {
-            const linkText = document.getElementById('refLinkDisplay').innerText;
-            navigator.clipboard.writeText(linkText).then(() => {
-                alert("রেফারেল লিংক কপি হয়েছে!");
-            });
-        }
-
-        function openBot() {
-            window.open("https://t.me/earningtask25_bot?start=" + id, "_blank");
-        }
-
+        // --- আপনার নতুন স্ক্রিপ্ট লিংক এবং আইডি সহ ছবি পাঠানোর ফাংশন ---
         function uploadScreenshot(n) {
             const fileInput = document.getElementById('proof' + n);
             if (!fileInput.files[0]) return alert("ছবি সিলেক্ট করুন!");
 
-            const lastTaskTime = localStorage.getItem('lastTask_' + n);
-            const currentTime = new Date().getTime();
-            const lockTime = 24 * 60 * 60 * 1000;
-
-            if (lastTaskTime && (currentTime - lastTaskTime < lockTime)) {
-                return alert("আপনি ইতিমধ্যে এই টাস্কটি করেছেন।");
-            }
-
-            // আপনার নতুন স্ক্রিপ্ট লিংক বসানো হয়েছে
-            const scriptURL = "https://script.google.com/macros/s/AKfycbxuJG3vMojxj4YpNOdZtY-rG1OoNgkuksA1jiXFlk3WNlCSOhECPFO3tmZrJ0gN2FAyjw/exec"; 
+            const scriptURL = "https://script.google.com/macros/s/AKfycbzRYt1XrQ4uSt_8MLpWmcJG8LeEtBaY0XPunbPv_pEAg9zov0cK1jF6c4I_rih9xaui/exec"; 
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64String = e.target.result.split(',')[1];
-                const adminMsg = `📸 নতুন প্রুফ জমা!\n🆔 ইউজার আইডি: ${id}\n📝 টাস্ক নম্বর: ${n}\n📌 অবস্থা: পেন্ডিং`;
+                
+                // মেসেজে আইডি যুক্ত করা হয়েছে
+                const adminMsg = `📸 নতুন প্রুফ!\nইউজার আইডি: ${id}\nটাস্ক নম্বর: ${n}\nঅবস্থা: যাচাইয়ের অপেক্ষায়`;
 
                 fetch(scriptURL, {
                     method: 'POST',
                     mode: 'no-cors',
                     body: JSON.stringify({ 
-                        "imagePayload": base64String,
+                        "imagePayload": base64String, 
                         "msg": adminMsg 
                     })
                 });
 
                 db.ref('users/' + id + '/pending').set(firebase.database.ServerValue.increment(1));
-                localStorage.setItem('lastTask_' + n, currentTime);
-
-                alert("প্রুফ জমা হয়েছে! এডমিন চেক করে ব্যালেন্স দিয়ে দিবে।");
-                checkTaskStatus(n); 
+                alert("প্রুফ জমা হয়েছে!");
             };
             reader.readAsDataURL(fileInput.files[0]);
         }
@@ -240,6 +193,13 @@
                     db.ref('users/' + id + '/balance').set(s.val() - amt);
                     alert("রিকোয়েস্ট সফল!");
                 } else alert("ব্যালেন্স নেই!");
+            });
+        }
+
+        function copyRefLink() {
+            const linkText = document.getElementById('refLinkDisplay').innerText;
+            navigator.clipboard.writeText(linkText).then(() => {
+                alert("রেফারেল লিংক কপি হয়েছে!");
             });
         }
 
